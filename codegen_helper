@@ -1,0 +1,36 @@
+# ANSI color codes
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+display_error() {
+    echo -e "${RED}Failed while executing sequence: $1${NC}"
+    exit 1
+}
+
+# Check if a file name was provided
+if [ $# -eq 0 ]; then
+	    display_error "No file name provided. Usage: $0 <filename>"
+fi
+
+# Store the file name
+file_name="$1"
+
+# Check if the file exists
+if [ ! -f "$file_name" ]; then
+	    display_error "File '$file_name' not found"
+fi
+
+set -e 
+# Perform a sequence of commands on the file
+echo  "${GREEN}Processing file: $file_name${NC}"
+
+echo "${GREEN}COMPILING TO ASSEMBLY ${NC}"
+ ../gccrs-build/gcc/crab1 $file_name  -o $file_name.s -frust-incomplete-and-experimental-compiler-do-not-use
+
+echo "${GREEN}COMPILING TO EXECUTABLE ${NC}"
+gcc $file_name.s -o $file_name.exe
+
+echo "${GREEN}RUNNING EXECUTABLE ${NC}"
+./$file_name.exe
+echo  "${GREEN}Done Processing file: $file_name${NC}"
